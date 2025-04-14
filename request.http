@@ -1,0 +1,118 @@
+### Création de l'admin
+curl -X POST http://localhost:3000/api/auth/create-admin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "email": "admin@gmail.com",
+    "password": "12345"
+}'
+
+### Login admin (remplacez VOTRE_TOKEN_ADMIN_ICI par le token reçu)
+curl -X POST http://localhost:3000/api/auth/admin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "12345"
+}'
+
+### Création d'un utilisateur (user) 
+### (Utilisez le token admin reçu en remplaçant VOTRE_TOKEN_ADMIN_ICI)
+curl -X POST http://localhost:3000/api/auth/new \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0NjczNTcxLCJleHAiOjE3NDQ2NzcxNzF9.tqrJR_ZML2lOkApqCDS4s9g1ANEP3yCQhgNotCNqykg" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "jawad",
+    "email": "jawad@gmail.com",
+    "password": "123jawad",
+    "role": "user"
+}'
+
+### Création d'un technicien
+### (Utilisez le token admin reçu en remplaçant VOTRE_TOKEN_ADMIN_ICI)
+curl -X POST http://localhost:3000/api/auth/new \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNzQ0NjczNTcxLCJleHAiOjE3NDQ2NzcxNzF9.tqrJR_ZML2lOkApqCDS4s9g1ANEP3yCQhgNotCNqykg" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "jawad tech",
+    "email": "technicien.jawad@gmail.com",
+    "password": "123tech",
+    "role": "technician"
+}'
+
+### Login utilisateur
+### (Remplacez TOKEN_USER_JAWAD par le token renvoyé après login)
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "jawad",
+    "password": "123jawad"
+}'
+
+### Login technicien
+### (Remplacez TOKEN_TECHNICIEN_JAWAD par le token renvoyé après login)
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "jawad tech",
+    "password": "123tech"
+}'
+
+### Création d'un ticket par utilisateur
+### (Remplacez TOKEN_USER_JAWAD par le token utilisateur et vérifiez que "userId" est bien celui attribué)
+curl -X POST http://localhost:3000/api/tickets \
+  -H "Authorization: Bearer TOKEN_USER_JAWAD" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Problème d'\''imprimante",
+    "description": "L'\''imprimante de la salle 101 ne fonctionne plus",
+    "userId": 2,
+    "status": "open"
+}'
+
+### Création d'un ticket par technicien avec assignation
+### (Remplacez TOKEN_TECHNICIEN_JAWAD par le token technicien et vérifiez les IDs)
+curl -X POST http://localhost:3000/api/tickets \
+  -H "Authorization: Bearer TOKEN_TECHNICIEN_JAWAD" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Serveur HS",
+    "description": "Serveur principal injoignable",
+    "userId": 2,
+    "technicianId": 3,
+    "status": "open"
+}'
+
+### Récupérer tous les tickets (technicien)
+curl -X GET http://localhost:3000/api/tickets \
+  -H "Authorization: Bearer TOKEN_TECHNICIEN_JAWAD" \
+  -H "Content-Type: application/json"
+
+### Récupérer tous les tickets (utilisateur)
+curl -X GET http://localhost:3000/api/tickets \
+  -H "Authorization: Bearer TOKEN_USER_JAWAD" \
+  -H "Content-Type: application/json"
+
+### Détail d'un ticket (technicien)
+curl -X GET http://localhost:3000/api/tickets/2 \
+  -H "Authorization: Bearer TOKEN_TECHNICIEN_JAWAD" \
+  -H "Content-Type: application/json"
+
+### Mise à jour d'un ticket (technicien)
+curl -X PUT http://localhost:3000/api/tickets/2 \
+  -H "Authorization: Bearer TOKEN_TECHNICIEN_JAWAD" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Imprimante réparée",
+    "description": "La cartouche a été remplacée",
+    "status": "closed",
+    "technicianId": 3,
+    "closedAt": "2025-04-13T17:00:00Z"
+}'
+
+### Tentative de suppression d'un ticket par un utilisateur (doit échouer)
+curl -X DELETE http://localhost:3000/api/admin/tickets/2 \
+  -H "Authorization: Bearer TOKEN_USER_JAWAD"
+
+### Suppression d'un ticket par un administrateur (doit réussir)
+curl -X DELETE http://localhost:3000/api/admin/tickets/2 \
+  -H "Authorization: Bearer TOKEN_ADMIN"
